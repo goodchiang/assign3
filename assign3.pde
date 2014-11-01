@@ -120,7 +120,7 @@ void setBombs(){
   }
   for(int i = 0;i < bombCount;i++){
     chooseBomb[i] = bombLocation[i];
-    println(chooseBomb[i]);
+    //println(chooseBomb[i]);
     slot[chooseBomb[i]%nSlot][chooseBomb[i]/nSlot] = SLOT_DEAD;
   }
    
