@@ -41,7 +41,6 @@ void setup(){
   totalSlots = nSlot*nSlot;
   // 初始化二維陣列
   slot = new int[nSlot][nSlot];
-  
   sideLength = SLOT_SIZE * nSlot;
   ix = (width - sideLength)/2; // initial x
   iy = (height - sideLength)/2; // initial y
@@ -69,11 +68,16 @@ void draw(){
     case GAME_RUN:
           //---------------- put you code here ----
            for (int row=0; row < nSlot; row++){
-             for (int col=0; col < nSlot; col++){
-               if(slot[col][row]==SLOT_DEAD){
+             for (int col=0; col < nSlot; col++){      
+               if(slot[col][row] == SLOT_DEAD){
                  gameState = GAME_LOSE;
                }else if(clickCount == totalSlots - bombCount){
                  gameState = GAME_WIN;
+                 if(slot[col][row]==SLOT_BOMB){
+                   showSlot(col,row,SLOT_BOMB);
+                 }else if(slot[col][row]==SLOT_FLAG_BOMB){
+                   showSlot(col,row,SLOT_FLAG_BOMB);
+                 }
                }
              }
            }
@@ -101,12 +105,13 @@ int countNeighborBombs(int col,int row){
       if(i < 0 ||j < 0 ||i >= nSlot||j >= nSlot){
         continue;
       } 
-      if(slot[i][j] == SLOT_BOMB){
+      if(slot[i][j] == SLOT_BOMB ||
+         slot[i][j] == SLOT_FLAG_BOMB||
+         slot[i][j] == SLOT_DEAD){
          count++; 
       }
     }
   }
-  text(count,0,0);
   //println(count);
   
   return count;
@@ -121,28 +126,32 @@ void setBombs(){
   }
   // -------------- put your code here ---------
   // randomly set bombs
-  
-  int[] bombLocation = new int[totalSlots];
+
+  int[] messedUpNums = new int[totalSlots];
   int[] chooseBomb = new int [bombCount];
   int bombCol;
   int bombRow;
 
-  for(int i = 0; i < bombLocation.length; i++){
-    bombLocation[i] = i;
+  for(int i = 0; i < messedUpNums.length; i++){
+    messedUpNums[i] = i;
   }
-  for(int i = 0; i < bombLocation.length; i++) {
+  for(int i = 0; i < messedUpNums.length; i++) {
     int a = int(random(totalSlots));
-    int temp = bombLocation[i];
-    bombLocation[i] = bombLocation[a];
-    bombLocation[a] = temp;
+    int temp = messedUpNums[i];
+    messedUpNums[i] = messedUpNums[a];
+    messedUpNums[a] = temp;
   }
   for(int i = 0;i < bombCount;i++){
-    chooseBomb[i] = bombLocation[i];
-    //println(chooseBomb[i]);
+    chooseBomb[i] = messedUpNums[i];
     bombCol = int(chooseBomb[i]%nSlot);
     bombRow = int(chooseBomb[i]/nSlot);
     slot[bombCol][bombRow] = SLOT_BOMB;
+    //println(chooseBomb[i]);
   }
+  
+
+
+  
   
   // ---------------------------------------
 }
@@ -221,20 +230,68 @@ void mousePressed(){
     
     // --------------- put you code here -------    
       
-        int col = int((mouseX - ix)/SLOT_SIZE);
-        int row = int((mouseY - iy)/SLOT_SIZE);
-          if(slot[col][row] == SLOT_BOMB){
-            showSlot(col,row,SLOT_BOMB);
-            slot[col][row] = SLOT_DEAD;
-            showSlot(col,row,SLOT_DEAD);
-          }else if(slot[col][row] == SLOT_OFF) {
-            showSlot(col,row,SLOT_SAFE);
-            slot[col][row] = SLOT_SAFE;
-            clickCount ++;
-            //println(clickCount);
-        }
+    int col = int((mouseX - ix)/SLOT_SIZE);
+    int row = int((mouseY - iy)/SLOT_SIZE);
+    flagSlot = new boolean[nSlot][nSlot] ;
       
-
+    if(mouseButton == LEFT){
+      if(slot[col][row] == SLOT_BOMB){
+        //showSlot(col,row,SLOT_BOMB);
+        slot[col][row] = SLOT_DEAD;
+        showSlot(col,row,SLOT_DEAD);
+        for(int i = 0;i < nSlot ; i++){
+          for(int j = 0;j < nSlot;j++){
+            if(slot[i][j]==SLOT_BOMB){
+              showSlot(i,j,SLOT_BOMB);
+            }else if(slot[i][j]==SLOT_FLAG_BOMB){
+              showSlot(i,j,SLOT_FLAG_BOMB);
+            }else if(slot[i][j]==SLOT_OFF){
+              showSlot(i,j,SLOT_SAFE);  
+            }
+          }
+        }    
+      }else if(slot[col][row] == SLOT_OFF) {
+        showSlot(col,row,SLOT_SAFE);
+        slot[col][row] = SLOT_SAFE;
+        clickCount ++;
+        //println(clickCount);
+      }
+    }else if(mouseButton == RIGHT){
+      if(slot[col][row] ==SLOT_OFF  ||
+         slot[col][row] ==SLOT_BOMB ||
+         slot[col][row] ==SLOT_FLAG ||
+         slot[col][row] ==SLOT_FLAG_BOMB){     
+        if(slot[col][row] == SLOT_OFF ||
+           slot[col][row] == SLOT_BOMB){
+          flagSlot[col][row] = true;
+          flagCount++;
+          if(flagCount > bombCount){
+            flagSlot[col][row] = false;
+        }
+       }else if(slot[col][row] == SLOT_FLAG ||
+            slot[col][row] == SLOT_FLAG_BOMB){
+            flagSlot[col][row] = false; 
+            flagCount--;
+       }
+       if(flagSlot[col][row]){
+         showSlot(col,row,SLOT_FLAG);
+         if(slot[col][row] == SLOT_OFF){
+           slot[col][row] = SLOT_FLAG;
+         }else if(slot[col][row] == SLOT_BOMB){
+           slot[col][row] = SLOT_FLAG_BOMB;
+          }
+        }else{
+          showSlot(col,row,SLOT_OFF);
+          if(slot[col][row] == SLOT_FLAG){
+             slot[col][row] = SLOT_OFF;
+          }else if(slot[col][row] == SLOT_FLAG_BOMB){
+             slot[col][row] = SLOT_BOMB;
+           }
+        } 
+           //println(slot[col][row]);
+           //println(flagCount);         
+      }
+    }
     // -------------------------
     
   }
