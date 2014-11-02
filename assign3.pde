@@ -31,7 +31,7 @@ PImage bomb, flag, cross ,bg;
 
 void setup(){
   size (640,480);
-  textFont(createFont("font/Square_One.ttf", 20));
+  textFont( createFont("font/Square_One.ttf",20) , 20);
   bomb=loadImage("data/bomb.png");
   flag=loadImage("data/flag.png");
   cross=loadImage("data/cross.png");
@@ -54,7 +54,7 @@ void draw(){
     case GAME_START:
           background(180);
           image(bg,0,0,640,480);
-          textSize(16);
+          textFont(createFont("font/Square_One.ttf",16),16);
           fill(0);
           text("Choose # of bombs to continue:",10,width/3-24);
           int spacing = width/9;
@@ -221,8 +221,8 @@ void mousePressed(){
     
     // --------------- put you code here -------    
       
-        int col = (mouseX - ix)/SLOT_SIZE;
-        int row = (mouseY - iy)/SLOT_SIZE;
+        int col = int((mouseX - ix)/SLOT_SIZE);
+        int row = int((mouseY - iy)/SLOT_SIZE);
           if(slot[col][row] == SLOT_BOMB){
             showSlot(col,row,SLOT_BOMB);
             slot[col][row] = SLOT_DEAD;
