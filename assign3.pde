@@ -81,12 +81,12 @@ void draw(){
           // -----------------------------------
           break;
     case GAME_WIN:
-          textSize(18);
+          textFont( createFont("font/Square_One.ttf",18) , 18);
           fill(0);
           text("YOU WIN !!",width/3,30);
           break;
     case GAME_LOSE:
-          textSize(18);
+          textFont( createFont("font/Square_One.ttf",18) , 18);
           fill(0);
           text("YOU LOSE !!",width/3,30);
           break;
