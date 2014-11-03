@@ -266,12 +266,13 @@ void mousePressed(){
           flagSlot[col][row] = true;
           flagCount++;
           if(flagCount > bombCount){
+            flagCount = bombCount;
             flagSlot[col][row] = false;
         }
        }else if(slot[col][row] == SLOT_FLAG ||
-            slot[col][row] == SLOT_FLAG_BOMB){
-            flagSlot[col][row] = false; 
-            flagCount--;
+           slot[col][row] == SLOT_FLAG_BOMB){
+           flagSlot[col][row] = false; 
+           flagCount--;
        }
        if(flagSlot[col][row]){
          showSlot(col,row,SLOT_FLAG);
